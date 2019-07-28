@@ -27,7 +27,7 @@ router.post("/users", async (req, res) => {
     // get the token
     const token = req.header("Authorization").replace("Bearer ", "");
     // verify the token
-    const decoded = jwt.verify(token, "helloworld");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // check to see if the token matches the users token
     const user = await User.findOne({ _id: decoded._id, "tokens.token": token})
 
