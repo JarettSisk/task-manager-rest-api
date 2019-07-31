@@ -5,6 +5,7 @@ const User = require("../models/user");
 const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 
+
 // Create a user
 router.post("/users", async (req, res) => {
   const createUser = async () => {

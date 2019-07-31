@@ -1,13 +1,16 @@
 "use strict"
 const express = require("express");
 require("./db/mongoose");
+const cors = require("cors")
 
 
 const app = express();
 const port = process.env.PORT;
 
-// Parse the req.body into JSON
+// Parse the incoming JSON
 app.use(express.json())
+
+app.use(cors());
 
 // Route modules
 const userRoute = require("./routes/user");
