@@ -5,7 +5,7 @@ const User = require("../models/user");
 const auth = async (req, res, next) => {
   try {
     // Returns the token from the header (if one is provided)
-    const token = req.cookies.auth;
+    const token = req.header("Authorization").replace("Bearer ", "");
     // verifies the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // find the user that has an _id that matches the _id  initially assigned during token creation

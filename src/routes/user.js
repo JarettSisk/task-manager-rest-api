@@ -4,7 +4,6 @@ const router = new express.Router();
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
-const cookieParser = require("cookie-parser");
 
 
 // Create a user
@@ -14,15 +13,6 @@ router.post("/users", async (req, res) => {
       const user = new User(req.body);
       await user.save();
       const token = await user.generateAuthToken();
-      
-      //create the session cookie that is http only
-      const cookieOptions = {
-        httpOnly: true,
-        expires: 0 
-       }
-       res.cookie('auth', token, cookieOptions)
-
-       //send back the response
       res.status(201).send({user, token})
 
     } catch (error) {
@@ -34,9 +24,9 @@ router.post("/users", async (req, res) => {
 
   try {
     // if a key exists but no user
-  if (req.cookies.auth) {
+  if (req.header("Authorization")) {
     // get the token
-    const token = req.cookies.auth;
+    const token = req.header("Authorization").replace("Bearer ", "");
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // check to see if the token matches the users token
@@ -69,19 +59,11 @@ router.post("/users", async (req, res) => {
 // Login a user
 router.post("/users/login", async (req, res) => {
 
-  // login function
   const login = async () => {
     try {
       const user = await User.findByCredentials(req.body.email, req.body.password);
       const token = await user.generateAuthToken();
-      
-      //create the session cookie that is http only
-      const cookieOptions = {
-        httpOnly: true,
-        expires: 0 
-       }
-       res.cookie('auth', token, cookieOptions)
-       res.send({ user, token});
+      res.send({ user, token});
       return;
     } catch (error) {
       return res.status(500).send(error.message);
@@ -90,9 +72,9 @@ router.post("/users/login", async (req, res) => {
   }
   try {
     // if a key exists but no user
-  if (req.cookies.auth) {
+  if (req.header("Authorization")) {
     // get the token
-    const token = req.cookies.auth;
+    const token = req.header("Authorization").replace("Bearer ", "");
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // check to see if the token matches the users token
@@ -130,19 +112,11 @@ router.post("/users/login", async (req, res) => {
 // Logout a user on a single session
 router.post("/users/logout", auth, async (req, res) => {
   try {
-    // set the users tokens to only store the tokens that are not equal to the one currently set
     req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     })
 
     await req.user.save();
-    
-    //clears the cookie session
-    const cookieOptions = {
-      httpOnly: true,
-      expires: 0 
-     }
-    res.clearCookie("auth", cookieOptions);
 
     res.send();
   } catch (error) {
@@ -155,12 +129,6 @@ router.post("/users/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    //clears the cookie session
-    const cookieOptions = {
-      httpOnly: true,
-      expires: 0 
-     }
-    res.clearCookie("auth", cookieOptions);
     res.send();
   } catch (error) {
     res.status(500).send()
@@ -169,7 +137,6 @@ router.post("/users/logoutAll", auth, async (req, res) => {
 
 // Read profile
 router.get("/users/me", auth, async (req, res) => {
-  
   res.send(req.user);  
 })
 

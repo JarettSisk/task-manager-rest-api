@@ -2,15 +2,14 @@
 const express = require("express");
 require("./db/mongoose");
 const cors = require("cors")
-const cookieParser = require("cookie-parser");
+
 
 const app = express();
 const port = process.env.PORT;
 
 // Parse the incoming JSON
 app.use(express.json())
-// parse incoming cookies
-app.use(cookieParser())
+
 app.use(cors());
 
 // Route modules
