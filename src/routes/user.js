@@ -77,7 +77,7 @@ router.post("/users/login", async (req, res) => {
       
       //create the session cookie that is http only
       const cookieOptions = {
-        httpOnly: false,
+        httpOnly: true,
         expires: 0 
        }
        res.cookie('auth', token, cookieOptions)
@@ -139,7 +139,7 @@ router.post("/users/logout", auth, async (req, res) => {
     
     //clears the cookie session
     const cookieOptions = {
-      httpOnly: false,
+      httpOnly: true,
       expires: 0 
      }
     res.clearCookie("auth", cookieOptions);
@@ -157,7 +157,7 @@ router.post("/users/logoutAll", auth, async (req, res) => {
     await req.user.save();
     //clears the cookie session
     const cookieOptions = {
-      httpOnly: false,
+      httpOnly: true,
       expires: 0 
      }
     res.clearCookie("auth", cookieOptions);
