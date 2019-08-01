@@ -23,7 +23,7 @@ router.post("/users", async (req, res) => {
        res.cookie('auth', token, cookieOptions)
 
        //send back the response
-      res.status(201).send({user, token})
+      res.status(201).send({user})
 
     } catch (error) {
       res.status(400).send(error.message);
@@ -81,7 +81,7 @@ router.post("/users/login", async (req, res) => {
         expires: 0 
        }
        res.cookie('auth', token, cookieOptions)
-       res.send({ user, token});
+       res.send({ user});
       return;
     } catch (error) {
       return res.status(500).send(error.message);
