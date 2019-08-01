@@ -9,12 +9,11 @@ const port = process.env.PORT;
 
 // Parse the incoming JSON
 app.use(express.json())
-app.use(cors());
 // parse incoming cookies
 app.use(cookieParser())
+app.use(cors());
 
-
-// Route modules
+// Route moduless
 const userRoute = require("./routes/user");
 const taskRoute = require("./routes/task.js");
 
