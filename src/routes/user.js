@@ -13,7 +13,7 @@ router.post("/users", async (req, res) => {
       const user = new User(req.body);
       await user.save();
       const token = await user.generateAuthToken();
-      res.status(201).send({user, token})
+      res.status(201).send({user})
 
     } catch (error) {
       res.status(400).send(error.message);
@@ -24,9 +24,9 @@ router.post("/users", async (req, res) => {
 
   try {
     // if a key exists but no user
-  if (req.header("Authorization")) {
+  if (req.cookies.auth) {
     // get the token
-    const token = req.header("Authorization").replace("Bearer ", "");
+    const token = req.cookies.auth;
     // verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // check to see if the token matches the users token
