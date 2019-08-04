@@ -2,6 +2,7 @@
 const express = require("express");
 require("./db/mongoose");
 const cors = require("cors")
+const cookieParser = require("cookie-parser");
 
 
 const app = express();
@@ -11,6 +12,7 @@ const port = process.env.PORT;
 app.use(express.json())
 
 app.use(cors());
+app.use(cookieParser());
 
 // Route modules
 const userRoute = require("./routes/user");
