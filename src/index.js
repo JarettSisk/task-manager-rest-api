@@ -8,7 +8,7 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const port = process.env.PORT;
 app.use(cors({
-  origin: "http://127.0.0.1:8080/"
+  origin: "http://127.0.0.1:8080"
 }));
 
 // Parse the incoming JSON
