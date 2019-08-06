@@ -14,7 +14,8 @@ router.post("/users", async (req, res) => {
       await user.save();
       const token = await user.generateAuthToken();
       res.cookie("auth", token, {
-        domain: String(req.header("Origin")),
+        domain: req.header("Origin"),
+        path: "/",
         httpOnly: false
       });
       res.status(201).send({user})
