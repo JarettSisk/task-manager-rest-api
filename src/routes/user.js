@@ -14,9 +14,10 @@ router.post("/users", async (req, res) => {
       await user.save();
       const token = await user.generateAuthToken();
       res.cookie("auth", token, {
+        domain: "http://127.0.0.1:8080",
         httpOnly: false
       });
-      res.status(201).send(typeof req.header("Origin"))
+      res.status(201).send({user})
       
 
     } catch (error) {
