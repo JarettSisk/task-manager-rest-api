@@ -15,7 +15,7 @@ router.post("/users", async (req, res) => {
       const token = await user.generateAuthToken();
       
       res.status(201).cookie("auth", token, {
-        domain: "test.com",
+        
       }).send({user})
       
 
