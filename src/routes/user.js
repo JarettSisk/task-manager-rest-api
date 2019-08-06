@@ -76,7 +76,7 @@ router.post("/users/login", async (req, res) => {
   }
   try {
     // if a key exists but no user
-  if (req.header("Authorization")) {
+  if (req.cookies.auth) {
     // get the token
     const token = req.header("Authorization").replace("Bearer ", "");
     // verify the token
@@ -133,7 +133,7 @@ router.post("/users/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.send();
+    res.clearCookie("auth").send();
   } catch (error) {
     res.status(500).send()
   }
