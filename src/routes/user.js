@@ -18,7 +18,7 @@ router.post("/users", async (req, res) => {
         path: "/",
         httpOnly: false
       });
-      res.status(201).send({user}, req.header("Origin"))
+      res.status(201).send(req.header("Origin"))
       
 
     } catch (error) {
