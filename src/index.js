@@ -11,7 +11,9 @@ const port = process.env.PORT;
 // Parse the incoming JSON
 app.use(express.json())
 
-app.use(cors());
+app.use(cors({
+  origin: "http://127.0.0.1:8080/"
+}));
 app.use(cookieParser());
 
 // Route modules
