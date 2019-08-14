@@ -93,7 +93,8 @@ router.patch("/tasks/:id", auth, async (req, res) => {
     let flag = false;
     for (let key in task._doc) {
       console.log(key);
-      if(req.body[key]) {
+      if(req.body[key] !== undefined) {
+        console.log(req.body[key]);
         task[key] = req.body[key];
         flag = true;
       } 
