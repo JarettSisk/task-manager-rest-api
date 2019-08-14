@@ -8,24 +8,79 @@ const jwt = require("jsonwebtoken");
 
 // Create a user
 router.post("/users", async (req, res) => {
+  
   const createUser = async () => {
     try {
+     
       const user = new User(req.body);
       await user.save();
       const token = await user.generateAuthToken();
-      
-      res.status(201).cookie("auth", token, {
-        
-      }).send({user})
+      console.log(req.body);
+      res.cookie("auth", token).send(user);
       
 
     } catch (error) {
-      res.status(400).send(error.message);
+      const errorJSON = (JSON.stringify(error));
+      return res.status(400).send(errorJSON);
   
     }
   }
 
 
+  try {
+    // if email is already in use 
+    const existingUser = await User.findOne({ email: req.body.email})
+    if (existingUser) {
+      throw new Error("Email already in use");
+    }
+    // if a key exists but no user
+    if (req.cookies.auth) {
+      console.log(req.cookies.auth);
+      // get the token
+      const token = req.cookies.auth;
+      // verify the token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // check to see if the token matches the users token
+      const user = await User.findOne({ _id: decoded._id, "tokens.token": token})
+
+      //check to see if the token does exist on the matching user
+      if (user) {
+        // if it does, then throw new error;
+        const error = new Error();
+        error.message = "You must log out first";
+        throw error;
+        
+      } 
+    }
+
+  // If no key
+  // Create the the user
+  await createUser();
+  
+  
+} catch (error) {
+  const errorJSON = (JSON.stringify(error));
+  res.status(400).send(errorJSON);
+}
+  
+ 
+})
+
+// Login a user
+router.post("/users/login", async (req, res) => {
+
+  const login = async () => {
+    try {
+      const user = await User.findByCredentials(req.body.email, req.body.password);
+      const token = await user.generateAuthToken();
+      res.cookie("auth", token).send(user);
+      return;
+    } catch (error) {
+      const errorJSON = (JSON.stringify(error));
+      return res.status(400).send(errorJSON);
+    }
+    
+  }
   try {
     // if a key exists but no user
   if (req.cookies.auth) {
@@ -39,55 +94,9 @@ router.post("/users", async (req, res) => {
     //check to see if the token does exist on the matching user
     if (user) {
       // if it does, then throw new error;
-      throw new Error("You must log out first")
-      
-    } else {
-      // if it does not exist, then use the creds to log in..
-      return await createUser()
-      
-    }
-  }
-
-  // If no key
-  // Create the the user
-  await createUser();
-  
-  
-} catch (error) {
-  res.status(400).send(error.message);
-}
-  
- 
-})
-
-// Login a user
-router.post("/users/login", async (req, res) => {
-
-  const login = async () => {
-    try {
-      const user = await User.findByCredentials(req.body.email, req.body.password);
-      const token = await user.generateAuthToken();
-      res.send({ user, token});
-      return;
-    } catch (error) {
-      return res.status(500).send(error.message);
-    }
-    
-  }
-  try {
-    // if a key exists but no user
-  if (req.cookies.auth) {
-    // get the token
-    const token = req.header("Authorization").replace("Bearer ", "");
-    // verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // check to see if the token matches the users token
-    const user = await User.findOne({ _id: decoded._id, "tokens.token": token})
-
-    //check to see if the token does exist on the matching user
-    if (user) {
-      // if it does, then throw new error;
-      throw new Error("You are already logged in")
+      const error = new Error();
+      error.message = "You are already logged in";
+      throw error;
       
     } else {
       // if it does not exist, then use the creds to log in..
@@ -106,7 +115,8 @@ router.post("/users/login", async (req, res) => {
   await login();
 
 } catch (error) {
-  res.status(400).send(error.message);
+  const errorJSON = (JSON.stringify(error));
+  res.status(400).send(errorJSON);
 }
     
   })
@@ -122,9 +132,10 @@ router.post("/users/logout", auth, async (req, res) => {
 
     await req.user.save();
 
-    res.send();
+    res.clearCookie("auth").status(200).send({message: "Successfully logged out"});
   } catch (error) {
-    res.status(500).send()
+    const errorJSON = (JSON.stringify(error));
+    res.status(400).send(errorJSON);
   }
 })
 
@@ -133,9 +144,10 @@ router.post("/users/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.clearCookie("auth").send();
+    res.clearCookie("auth").status(200).send({message: "Successfully logged out"});
   } catch (error) {
-    res.status(500).send()
+    const errorJSON = (JSON.stringify(error));
+    res.status(500).send(errorJSON);
   }
 })
 
@@ -177,7 +189,8 @@ router.patch("/users/me", auth, async (req, res) => {
     res.send(user);
 
   } catch (error) {
-    res.status(400).send(error.message);
+    const errorJSON = (JSON.stringify(error));
+    res.status(400).send(errorJSON);
   }
 })
 
@@ -185,10 +198,11 @@ router.patch("/users/me", auth, async (req, res) => {
 router.delete("/users/me", auth, async (req, res) => {
 
   try {
-   await req.user.remove(); 
-   res.send(req.user);
+   await req.user.remove();
+   res.clearCookie("auth").send(req.user); 
   } catch (error) {
-    res.status(500).send(error.message);
+    const errorJSON = (JSON.stringify(error));
+    res.status(400).send(errorJSON);
   }
 })
 
